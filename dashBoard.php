@@ -32,16 +32,22 @@
         </ul>
 
         <div class="col-md-3 text-end">
+
           <?php
-            if(!isset($_SESSION)) {
-              $class = 'show';
+            if(isset($_SESSION['id'])) {
+              ?><a href="login.php"><button type="button" class="btn btn-outline-primary me-2, d-none">Login</button></a>
+              <a href="register.php"><button type="button" class="btn btn-primary, d-none">Sign-up</button></a>
+              <a href="logout.php"><button type="button" class="btn btn-primary">Logout</button></a><?php
             } else {
-              $class = 'hidden';
+              ?><a href="login.php"><button type="button" class="btn btn-outline-primary me-2">Login</button></a>
+              <a href="register.php"><button type="button" class="btn btn-primary">Sign-up</button></a>
+              <a href="logout.php"><button type="button" class="btn btn-primary, d-none">Logout</button></a><?php
             }
            ?>
-          <a href="login.php"><button type="button" class="btn btn-outline-primary me-2, <?= $class?>">Login</button></a>
-          <a href="register.php"><button type="button" class="btn btn-primary">Sign-up</button></a>
-          <a href="logout.php"><button type="button" class="btn btn-primary">Logout</button></a>
+
+
+
+
         </div>
       </header>
     </div>
@@ -122,6 +128,7 @@
           <form action="" method="post">
             <div class="row g-2">
               <?php
+              if ($row['id'] === $id) {
                 if ($row['importance'] == '3') {
                   ?><div class="col-8"><li class="list-group-item bg-danger"><?= $row['task'] ?></li></div><?php
                 } elseif ($row['importance'] == '2') {
@@ -129,6 +136,8 @@
                 } else {
                   ?><div class="col-8"><li class="list-group-item bg-succes"><?= $row['task'] ?></li></div><?php
                 }
+              }
+
               ?>
 
               <?php

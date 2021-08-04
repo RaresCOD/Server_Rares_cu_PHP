@@ -82,7 +82,7 @@
       echo "All fileds must be complited";
     } else {
       if (!valid($email, $password, $pdo)) { //validam datele introduse de user
-
+        echo "Incorrect email or password!";
       } else {
         echo "Login succesful";
         $_SESSION["id"] = getId($email, $password, $pdo);
