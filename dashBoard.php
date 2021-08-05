@@ -54,30 +54,40 @@
         </div>
       </header>
     </div>
-    <form action="" method="post">
-
-      <div class="row g-2">
-        <div class="col-5">
-          <div class="form-floating">
-            <input type="text" name="task" class="form-control" id="floatingInputGrid" placeholder="Mers la magazin">
-            <label for="floatingInputGrid">Task</label>
-          </div>
-        </div>
-        <div class="col-5">
-          <div class="form-floating">
-            <select class="form-select" name="importance" id="floatingSelectGrid" aria-label="Floating label select example">
-              <option selected>Open this select menu</option>
-              <option value="1">Low</option>
-              <option value="2">Medium</option>
-              <option value="3">High</option>
-            </select>
-            <label for="floatingSelectGrid">Importance</label>
-          </div>
-        </div>
-        <div class="col m-2"><button class="w-100 btn btn-lg btn-primary" name="add" type="submit">Add</button></div>
-      </div>
-    </form>
     <?php
+    if(isset($_SESSION['id'])) {
+      ?><form action="" method="post">
+
+        <div class="row g-2">
+          <div class="col-5">
+            <div class="form-floating">
+              <input type="text" name="task" class="form-control" id="floatingInputGrid" placeholder="Mers la magazin">
+              <label for="floatingInputGrid">Task</label>
+            </div>
+          </div>
+          <div class="col-5">
+            <div class="form-floating">
+              <select class="form-select" name="importance" id="floatingSelectGrid" aria-label="Floating label select example">
+                <option selected>Open this select menu</option>
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">High</option>
+              </select>
+              <label for="floatingSelectGrid">Importance</label>
+            </div>
+          </div>
+          <div class="col m-2"><button class="w-100 btn btn-lg btn-primary" name="add" type="submit">Add</button></div>
+        </div>
+      </form><?php
+    } else {?>
+      <div class='text-center'><h2>Please Login</h2>
+      <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-door-open-fill" viewBox="0 0 16 16">
+      <path d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.57-.495l-7 1A.5.5 0 0 0 3 1.5V15H1.5zM11 2h.5a.5.5 0 0 1 .5.5V15h-1V2zm-2.5 8c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z"/>
+      </svg></div><?php
+
+    }
+
+
 
 
       //try {
@@ -99,6 +109,9 @@
       <br>
 
       <?php
+        if(isset($_SESSION['id'])) {
+
+
         $userid = $_SESSION["id"];
         if (gettype($userid) == "string") {
           $userid = intval($userid);
@@ -123,7 +136,7 @@
           header('Location: dashBoard.php');
           exit;
         }
-        $result = $pdo->query("SELECT * FROM TODOS");
+        $result = $pdo->query("SELECT * FROM TODOS ORDER BY importance DESC");
        ?>
 
       <h2>List of tasks:<br></h2>
@@ -139,17 +152,23 @@
                   ?><div class="col-8"><li class="list-group-item bg-warning" name="<?=$row['id']?>"><?= $row['task'] ?></li></div><?php
                 } else {
                   ?><div class="col-8"><li class="list-group-item bg-succes" name="<?=$row['id']?>"><?= $row['task'] ?></li></div><?php
-                }?>
-                <div class="col m-2"><a href="delete_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Delete</a></div>
-                <div class="col m-2"><a href="edit_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Edit</a></div>
-                <div class="col m-2"><a href="complited_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Complited</a></div><?php
+                }
+                if ($row['completed'] == 'no') {
+                  ?><div class="col m-2"><a href="delete_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Delete</a></div>
+                  <div class="col m-2"><a href="edit_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Edit</a></div>
+                  <div class="col m-2"><a href="complited_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Completed</a></div><?php
+                } else {
+                  ?><div class="col m-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                    <path d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"/>
+</svg></div><?php
+                }
               }
               ?>
             </div>
           </form>
         <?php endforeach;?>
           <?php
-        ?>
+        }?>
       </ul>
 
   </body>
