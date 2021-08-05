@@ -83,6 +83,7 @@
     } else {
       if (!valid($email, $password, $pdo)) { //validam datele introduse de user
         echo "Incorrect email or password!";
+        header("Location: login.php");
       } else {
         echo "Login succesful";
         $_SESSION["id"] = getId($email, $password, $pdo);

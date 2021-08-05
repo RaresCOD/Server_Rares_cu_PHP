@@ -106,17 +106,19 @@
           $task = $_POST['task'];
           $importance = $_POST['importance'];
           $id = intval (uniqid (rand (),true));
-          echo $id. " = ". gettype($id) . "<br>" . $userid. " = " . gettype($userid). "<br>" . $task. " = " . gettype($task). " " . $importance. " = ". gettype($importance)."<br>";
+          //echo $id. " = ". gettype($id) . "<br>" . $userid. " = " . gettype($userid). "<br>" . $task. " = " . gettype($task). " " . $importance. " = ". gettype($importance)."<br>";
           //$output = ob_get_contents();
           //echo "<br>".$output;
-          echo "da";
-          $pdo->exec("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');");
-          $string = ("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');");
-          echo $string;
+          //echo "da";
+          $pdo->exec("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');") or die(print_r($pdo->errorInfo(), true));
+          //$string = ("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');");
+          //echo $string;
           //die();
           //echo $da;
           //$pdo->exec("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','dada','mportancae');");
           unset($_POST['add']);
+          header('Location: dashBoard.php');
+          exit;
         }
         //session_destroy();\
         $result = $pdo->query("SELECT * FROM TODOS");
@@ -125,17 +127,20 @@
       <h2>List of tasks:<br></h2>
       <ul class="list-group list-group-flush">
         <?php foreach ($result as $row): ?>
-          <form action="" method="post">
+          <form action="dashBoard.php" method="post">
             <div class="row g-2">
               <?php
-              if ($row['id'] === $id) {
+              if ($row['userid'] == $userid) {
                 if ($row['importance'] == '3') {
                   ?><div class="col-8"><li class="list-group-item bg-danger"><?= $row['task'] ?></li></div><?php
                 } elseif ($row['importance'] == '2') {
                   ?><div class="col-8"><li class="list-group-item bg-warning"><?= $row['task'] ?></li></div><?php
                 } else {
                   ?><div class="col-8"><li class="list-group-item bg-succes"><?= $row['task'] ?></li></div><?php
-                }
+                }?>
+                <div class="col m-2"><button type="submit" name="del" class="w-100 btn btn-lg btn-primary" value="<?=$row['id']?>">Delete</button></div>
+                <div class="col m-2"><button type="submit" name="edit" class="w-100 btn btn-lg btn-primary" value="<?=$row['id']?>">Edit</button></div>
+                <div class="col m-2"><button type="submit" name="com" class="w-100 btn btn-lg btn-primary" value="<?=$row['id']?>">Complited</button></div><?php
               }
 
               ?>
@@ -144,27 +149,46 @@
 
 
                 if(isset($_REQUEST['del'])) {
-                  //deleteTask($row['id']);
-                  unset($_REQUEST['del']);
+                  $id = intval($_REQUEST['del']);
+                  echo $id;
+                  $query = "DELETE FROM TODOS WHERE id=:id";
+                  $sql = $pdo->prepare($query);
+                  $sql->bindParam(':id', $id, PDO::PARAM_INT, 5);
+                  if($sql->execute()) {
+                    //echo "Successfully deleted  record ";
+                    //echo "<br><br>Number of rows deleted  : ".$sql->rowCount();
+                  }
+                  else {
+                    print_r($sql->errorInfo()); // if any error is there it will be posted
+                    $msg=" Database problem, please contact site admin ";
+                  }
+
+                  $pdo = null;
+                  //$pdo->exec("DELETE FROM TODOS WHERE '$btn';") or print_r($pdo->errorInfo(), true);
+
+                  header('Location: dashBoard.php');
+                  // die;
                 }
                 if(isset($_REQUEST['edit'])) {
-                  echo "Edit";
+                  $btn = $_REQUEST['edit'];
+                  echo $btn;
                   unset($_REQUEST['edit']);
+                  header('Location: dashBoard.php');
+                  exit;
                 }
                 if(isset($_REQUEST['com'])) {
-                  echo "Complited";
+                  $btn = $_REQUEST['com'];
+                  echo $btn;
                   unset($_REQUEST['com']);
+                  header('Location: dashBoard.php');
+                  exit;
                 }
               ?>
-
-                <div class="col m-2"><input type="submit" name="del" class="w-100 btn btn-lg btn-primary" value="Delete"></div>
-                <div class="col m-2"><input type="submit" name="edit" class="w-100 btn btn-lg btn-primary" value="Edit"></div>
-                <div class="col m-2"><input type="submit" name="com" class="w-100 btn btn-lg btn-primary" value="Complited"></div>
-                <br>
-
             </div>
           </form>
-        <?php endforeach; ?>
+        <?php endforeach;?>
+          <?php
+        ?>
       </ul>
 
   </body>
