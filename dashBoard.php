@@ -1,6 +1,9 @@
 <?php
   session_start();
   ob_start();
+
+
+
 ?>
 
 <!doctype html>
@@ -80,7 +83,7 @@
       //try {
         $pdo = new PDO('sqlite:TASKS.db');
 
-        $pdo->exec("CREATE TABLE TODOS(id INTEGER PRIMARY KEY,userid INTEGER,task TEXT, importance INTEGER);");
+        $pdo->exec("CREATE TABLE TODOS(id INTEGER PRIMARY KEY,userid INTEGER,task TEXT, importance INTEGER, completed TEXT);");
       //} catch (PDOException $e) {
       //  echo $e->getMessage();
     //  }
@@ -110,7 +113,7 @@
           //$output = ob_get_contents();
           //echo "<br>".$output;
           //echo "da";
-          $pdo->exec("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');") or die(print_r($pdo->errorInfo(), true));
+          $pdo->exec("INSERT INTO TODOS(id,userid,task,importance,completed) VALUES('$id','$userid','$task','$importance','no');") or die(print_r($pdo->errorInfo(), true));
           //$string = ("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');");
           //echo $string;
           //die();
@@ -120,7 +123,6 @@
           header('Location: dashBoard.php');
           exit;
         }
-        //session_destroy();\
         $result = $pdo->query("SELECT * FROM TODOS");
        ?>
 
@@ -131,58 +133,17 @@
             <div class="row g-2">
               <?php
               if ($row['userid'] == $userid) {
-                if ($row['importance'] == '3') {
-                  ?><div class="col-8"><li class="list-group-item bg-danger"><?= $row['task'] ?></li></div><?php
+                if ($row['importance'] == '3' and $row['completed'] == 'no') {
+                  ?><div class="col-8"><li class="list-group-item bg-danger" name="<?=$row['id']?>"><?= $row['task'] ?></li></div><?php
                 } elseif ($row['importance'] == '2') {
-                  ?><div class="col-8"><li class="list-group-item bg-warning"><?= $row['task'] ?></li></div><?php
+                  ?><div class="col-8"><li class="list-group-item bg-warning" name="<?=$row['id']?>"><?= $row['task'] ?></li></div><?php
                 } else {
-                  ?><div class="col-8"><li class="list-group-item bg-succes"><?= $row['task'] ?></li></div><?php
+                  ?><div class="col-8"><li class="list-group-item bg-succes" name="<?=$row['id']?>"><?= $row['task'] ?></li></div><?php
                 }?>
-                <div class="col m-2"><button type="submit" name="del" class="w-100 btn btn-lg btn-primary" value="<?=$row['id']?>">Delete</button></div>
-                <div class="col m-2"><button type="submit" name="edit" class="w-100 btn btn-lg btn-primary" value="<?=$row['id']?>">Edit</button></div>
-                <div class="col m-2"><button type="submit" name="com" class="w-100 btn btn-lg btn-primary" value="<?=$row['id']?>">Complited</button></div><?php
+                <div class="col m-2"><a href="delete_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Delete</a></div>
+                <div class="col m-2"><a href="edit_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Edit</a></div>
+                <div class="col m-2"><a href="complited_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Complited</a></div><?php
               }
-
-              ?>
-
-              <?php
-
-
-                if(isset($_REQUEST['del'])) {
-                  $id = intval($_REQUEST['del']);
-                  echo $id;
-                  $query = "DELETE FROM TODOS WHERE id=:id";
-                  $sql = $pdo->prepare($query);
-                  $sql->bindParam(':id', $id, PDO::PARAM_INT, 5);
-                  if($sql->execute()) {
-                    //echo "Successfully deleted  record ";
-                    //echo "<br><br>Number of rows deleted  : ".$sql->rowCount();
-                  }
-                  else {
-                    print_r($sql->errorInfo()); // if any error is there it will be posted
-                    $msg=" Database problem, please contact site admin ";
-                  }
-
-                  $pdo = null;
-                  //$pdo->exec("DELETE FROM TODOS WHERE '$btn';") or print_r($pdo->errorInfo(), true);
-
-                  header('Location: dashBoard.php');
-                  // die;
-                }
-                if(isset($_REQUEST['edit'])) {
-                  $btn = $_REQUEST['edit'];
-                  echo $btn;
-                  unset($_REQUEST['edit']);
-                  header('Location: dashBoard.php');
-                  exit;
-                }
-                if(isset($_REQUEST['com'])) {
-                  $btn = $_REQUEST['com'];
-                  echo $btn;
-                  unset($_REQUEST['com']);
-                  header('Location: dashBoard.php');
-                  exit;
-                }
               ?>
             </div>
           </form>
