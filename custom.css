@@ -1,0 +1,15 @@
+li.list-group-item.bg-succes {
+    background-color: #19874A;
+}
+
+li.list-group-item.bg-danger {
+    background-color: #dc3545;
+}
+
+li.list-group-item.bg-warning {
+    background-color: #ffc107;
+}
+
+circle {
+    opacity: 0.001;
+}
