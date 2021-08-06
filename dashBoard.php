@@ -1,9 +1,7 @@
 <?php
   session_start();
   ob_start();
-
-
-
+  include_once ('Functions/Sanitize_functions.php');
 ?>
 
 <!doctype html>
@@ -90,28 +88,15 @@
 
 
 
-      //try {
+      try {
         $pdo = new PDO('sqlite:TASKS.db');
-
-        $pdo->exec("CREATE TABLE TODOS(id INTEGER PRIMARY KEY,userid INTEGER,task TEXT, importance INTEGER, completed TEXT);");
-      //} catch (PDOException $e) {
-      //  echo $e->getMessage();
-    //  }
-
-      // function deleteTask($taskId) {
-      //   $sql = 'DELETE FROM TODOS '.'WHERE id = :id';
-      //   $stmt = $pdo->exec($sql);
-      //   $stmt->bindValue(':id', $taskId);
-      //   $stmt->execute();
-      //   return $stmt->rowcount();
-      // }
+      } catch (PDOException $e) {
+       echo $e->getMessage();
+      }
       ?>
       <br>
-
       <?php
         if(isset($_SESSION['id'])) {
-
-
         $userid = $_SESSION["id"];
         if (gettype($userid) == "string") {
           $userid = intval($userid);
@@ -119,19 +104,11 @@
         $email = $_SESSION['email'];
 
         if (isset($_POST['add'])) {
-          $task = $_POST['task'];
+          $rawTask = $_POST['task'];
+          $task = SQLite3::escapeString($rawTask);
           $importance = $_POST['importance'];
           $id = intval (uniqid (rand (),true));
-          //echo $id. " = ". gettype($id) . "<br>" . $userid. " = " . gettype($userid). "<br>" . $task. " = " . gettype($task). " " . $importance. " = ". gettype($importance)."<br>";
-          //$output = ob_get_contents();
-          //echo "<br>".$output;
-          //echo "da";
           $pdo->exec("INSERT INTO TODOS(id,userid,task,importance,completed) VALUES('$id','$userid','$task','$importance','no');") or die(print_r($pdo->errorInfo(), true));
-          //$string = ("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','$task','$importance');");
-          //echo $string;
-          //die();
-          //echo $da;
-          //$pdo->exec("INSERT INTO TODOS(id,userid,task,importance) VALUES('$id','$userid','dada','mportancae');");
           unset($_POST['add']);
           header('Location: dashBoard.php');
           exit;
@@ -154,19 +131,22 @@
                   ?><div class="col-8"><li class="list-group-item bg-succes" name="<?=$row['id']?>"><?= $row['task'] ?></li></div><?php
                 }
                 if ($row['completed'] == 'no') {
-                  ?><div class="col m-2"><a href="delete_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Delete</a></div>
-                  <div class="col m-2"><a href="edit_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Edit</a></div>
-                  <div class="col m-2"><a href="complited_task.php?id=<?=$row['id']?>" class="w-100 btn btn-lg btn-primary" >Completed</a></div><?php
-                } else {
-                  ?><div class="col m-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                  ?><div class="col m-2"><a href="delete_task.php?id=<?=$row['id']?>&uid=<?=$userid?>" class="w-100 btn btn-lg btn-primary" >Delete</a></div>
+                  <div class="col m-2"><a href="edit_task.php?id=<?=$row['id']?>&uid=<?=$userid?>" class="w-100 btn btn-lg btn-primary" >Edit</a></div>
+                  <div class="col m-2"><a href="complited_task.php?id=<?=$row['id']?>&uid=<?=$userid?>" class="w-100 btn btn-lg btn-primary" >Completed</a></div><?php
+                } else {?>
+                  <div class="col m-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
                     <path d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"/>
-</svg></div><?php
+                    </svg>
+                  </div>
+                  <?php
                 }
               }
               ?>
             </div>
           </form>
-        <?php endforeach;?>
+          <?php endforeach;?>
           <?php
         }?>
       </ul>

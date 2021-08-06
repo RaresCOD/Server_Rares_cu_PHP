@@ -1,11 +1,20 @@
+<?php
+  include_once 'Functions/Session_functions.php';
+  session_start();
+  if(empty($_GET)) {
+    ?>
+    <h1>Unexpected entry!</h1>
+    <?php
+    die;
+  }
+?>
+
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="custom.css">
     <link hrepf="buttons.css" rel="stylesheet">
@@ -41,23 +50,28 @@
 
     $pdo = new PDO('sqlite:TASKS.db');
 
-    $pdo->exec("CREATE TABLE TODOS(id INTEGER PRIMARY KEY,userid INTEGER,task TEXT, importance INTEGER);");
-
     $id = $_GET['id'];
-
-    if (isset($_POST['go'])) {
-      $taskUpdate = $_POST['task'];
-      $taskImportance = $_POST['importance'];
-
-      $query = "UPDATE TODOS SET task=:task,importance=:importance WHERE id=:id";
-      $sql = $pdo->prepare($query);
-      $sql->bindParam(':task', $taskUpdate,PDO::PARAM_STR, 25);
-      $sql->bindParam(':importance', $taskImportance,PDO::PARAM_STR, 25);
-      $sql->bindParam(':id', $id,PDO::PARAM_INT, 5);
-      $sql->execute();
-      header("Location: dashBoard.php");
-      exit;
+    $uid = $_GET['uid'];
+    if(!isset($_SESSION['id'])) {
+      include_once('sessionError.php');
+      die;
     }
-
+    $userId = $_SESSION['id'];
+    if(validSession($uid, $userId)) {
+      if (isset($_POST['go'])) {
+        $rawtaskUpdate = $_POST['task'];
+        $taskUpdate = SQLite3::escapeString($rawtaskUpdate);
+        $query = "UPDATE TODOS SET task=:task,importance=:importance WHERE id=:id";
+        $sql = $pdo->prepare($query);
+        $sql->bindParam(':task', $taskUpdate,PDO::PARAM_STR, 25);
+        $sql->bindParam(':importance', $taskImportance,PDO::PARAM_STR, 25);
+        $sql->bindParam(':id', $id,PDO::PARAM_INT, 5);
+        $sql->execute();
+        header("Location: dashBoard.php");
+        exit;
+      }
+    } else {
+      include_once('sessionError.php');
+    }
     ?>
   </body>
